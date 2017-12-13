@@ -1,11 +1,13 @@
 package com.example;
 
 import io.github.novacrypto.bip32.PrivateKey;
+import io.github.novacrypto.bip32.PublicKey;
 import io.github.novacrypto.bip32.networks.Bitcoin;
 import io.github.novacrypto.bip39.MnemonicGenerator;
 import io.github.novacrypto.bip39.SeedCalculator;
 import io.github.novacrypto.bip39.Words;
 import io.github.novacrypto.bip39.wordlists.English;
+import io.github.novacrypto.bip44.Account;
 import io.github.novacrypto.bip44.AddressIndex;
 
 import java.security.SecureRandom;
@@ -44,14 +46,17 @@ public final class Main {
                 .derive("m/44'/1'/0'/0/0")
                 .neuter().p2pkhAddress();
 
-        AddressIndex addressIndex = m()
-                .purpose44()
-                .coinType(1)
-                .account(0)
-                .external()
-                .address(0);
-        String addressMethod4 = root.derive(addressIndex, AddressIndex.DERIVATION)
-                .neuter().p2pkhAddress();
+        Account account =
+                m().purpose44()
+                        .coinType(1)
+                        .account(0);
+        PublicKey accountKey = root.derive(account, Account.DERIVATION)
+                .neuter();
+
+        String addressMethod4 = accountKey.derive(
+                account.external().address(0),
+                AddressIndex.DERIVATION_FROM_ACCOUNT)
+                .p2pkhAddress();
 
         System.out.println(addressMethod1);
         System.out.println(addressMethod2);
