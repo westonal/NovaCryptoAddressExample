@@ -6,10 +6,12 @@ import io.github.novacrypto.bip39.MnemonicGenerator;
 import io.github.novacrypto.bip39.SeedCalculator;
 import io.github.novacrypto.bip39.Words;
 import io.github.novacrypto.bip39.wordlists.English;
+import io.github.novacrypto.bip44.AddressIndex;
 
 import java.security.SecureRandom;
 
 import static io.github.novacrypto.bip32.Index.hard;
+import static io.github.novacrypto.bip44.BIP44.m;
 
 public final class Main {
 
@@ -42,9 +44,19 @@ public final class Main {
                 .derive("m/44'/1'/0'/0/0")
                 .neuter().p2pkhAddress();
 
+        AddressIndex addressIndex = m()
+                .purpose44()
+                .coinType(1)
+                .account(0)
+                .external()
+                .address(0);
+        String addressMethod4 = root.derive(addressIndex, AddressIndex.DERIVATION)
+                .neuter().p2pkhAddress();
+
         System.out.println(addressMethod1);
         System.out.println(addressMethod2);
         System.out.println(addressMethod3);
+        System.out.println(addressMethod4);
     }
 
     private static String generateNewMnemonic(Words wordCount) {
