@@ -9,6 +9,8 @@ import io.github.novacrypto.bip39.wordlists.English;
 
 import java.security.SecureRandom;
 
+import static io.github.novacrypto.bip32.Index.hard;
+
 public final class Main {
 
     public static void main(String[] args) {
@@ -18,6 +20,31 @@ public final class Main {
         final byte[] seed = new SeedCalculator().calculateSeed(mnemonic, "");
 
         PrivateKey root = PrivateKey.fromSeed(seed, Bitcoin.TEST_NET);
+
+        String addressMethod1 = root
+                .cKDpriv(hard(44)) //fixed
+                .cKDpriv(hard(1)) //bitcoin testnet coin
+                .cKDpriv(hard(0)) //account =1
+                .cKDpriv(0) //external
+                .cKDpriv(0) //first address
+                .neuter().p2pkhAddress();
+
+        String addressMethod2 = root
+                .cKDpriv(hard(44)) //fixed
+                .cKDpriv(hard(1)) //bitcoin testnet coin
+                .cKDpriv(hard(0)) //account =1
+                .neuter() //switch to public keys
+                .cKDpub(0) //external
+                .cKDpub(0) //first address
+                .p2pkhAddress();
+
+        String addressMethod3 = root
+                .derive("m/44'/1'/0'/0/0")
+                .neuter().p2pkhAddress();
+
+        System.out.println(addressMethod1);
+        System.out.println(addressMethod2);
+        System.out.println(addressMethod3);
     }
 
     private static String generateNewMnemonic(Words wordCount) {
