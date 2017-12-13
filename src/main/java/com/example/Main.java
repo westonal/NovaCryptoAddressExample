@@ -9,11 +9,16 @@ import java.security.SecureRandom;
 public final class Main {
 
     public static void main(String[] args) {
+        final String mnemonic = generateNewMnemonic(Words.TWELVE);
+        System.out.println(mnemonic);
+    }
+
+    private static String generateNewMnemonic(Words wordCount) {
         StringBuilder sb = new StringBuilder();
-        byte[] entropy = new byte[Words.TWELVE.byteLength()];
+        byte[] entropy = new byte[wordCount.byteLength()];
         new SecureRandom().nextBytes(entropy);
         new MnemonicGenerator(English.INSTANCE)
                 .createMnemonic(entropy, sb::append);
-        System.out.println(sb.toString());
+        return sb.toString();
     }
 }
