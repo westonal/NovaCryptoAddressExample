@@ -1,5 +1,7 @@
 package com.example;
 
+import io.github.novacrypto.bip32.PrivateKey;
+import io.github.novacrypto.bip32.networks.Bitcoin;
 import io.github.novacrypto.bip39.MnemonicGenerator;
 import io.github.novacrypto.bip39.SeedCalculator;
 import io.github.novacrypto.bip39.Words;
@@ -15,6 +17,7 @@ public final class Main {
 
         final byte[] seed = new SeedCalculator().calculateSeed(mnemonic, "");
 
+        PrivateKey root = PrivateKey.fromSeed(seed, Bitcoin.TEST_NET);
     }
 
     private static String generateNewMnemonic(Words wordCount) {
