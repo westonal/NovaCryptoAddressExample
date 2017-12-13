@@ -9,10 +9,10 @@ import io.github.novacrypto.bip39.Words;
 import io.github.novacrypto.bip39.wordlists.English;
 import io.github.novacrypto.bip44.Account;
 import io.github.novacrypto.bip44.AddressIndex;
+import io.github.novacrypto.bip44.Change;
 
 import java.security.SecureRandom;
 
-import static io.github.novacrypto.bip32.Index.hard;
 import static io.github.novacrypto.bip44.BIP44.m;
 
 public final class Main {
@@ -25,43 +25,18 @@ public final class Main {
 
         PrivateKey root = PrivateKey.fromSeed(seed, Bitcoin.TEST_NET);
 
-        String addressMethod1 = root
-                .cKDpriv(hard(44)) //fixed
-                .cKDpriv(hard(1)) //bitcoin testnet coin
-                .cKDpriv(hard(0)) //account =1
-                .cKDpriv(0) //external
-                .cKDpriv(0) //first address
-                .neuter().p2pkhAddress();
-
-        String addressMethod2 = root
-                .cKDpriv(hard(44)) //fixed
-                .cKDpriv(hard(1)) //bitcoin testnet coin
-                .cKDpriv(hard(0)) //account =1
-                .neuter() //switch to public keys
-                .cKDpub(0) //external
-                .cKDpub(0) //first address
-                .p2pkhAddress();
-
-        String addressMethod3 = root
-                .derive("m/44'/1'/0'/0/0")
-                .neuter().p2pkhAddress();
-
-        Account account =
+        final Account account =
                 m().purpose44()
                         .coinType(1)
                         .account(0);
-        PublicKey accountKey = root.derive(account, Account.DERIVATION)
+        final PublicKey accountKey = root.derive(account, Account.DERIVATION)
                 .neuter();
 
-        String addressMethod4 = accountKey.derive(
-                account.external().address(0),
-                AddressIndex.DERIVATION_FROM_ACCOUNT)
-                .p2pkhAddress();
-
-        System.out.println(addressMethod1);
-        System.out.println(addressMethod2);
-        System.out.println(addressMethod3);
-        System.out.println(addressMethod4);
+        for (int i = 0; i < 20; i++) {
+            final AddressIndex derivationPath = account.external().address(i);
+            final PublicKey publicKey = accountKey.derive(derivationPath, AddressIndex.DERIVATION_FROM_ACCOUNT);
+            System.out.println(derivationPath + " = " + publicKey.p2pkhAddress());
+        }
     }
 
     private static String generateNewMnemonic(Words wordCount) {
